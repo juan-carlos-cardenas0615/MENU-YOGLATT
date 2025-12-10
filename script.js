@@ -153,6 +153,11 @@ const productos = [
     { id: 62, categoria: "🐾 PALETAS PARA MASCOTAS", nombre: "TOCINETA", precio: 4500, descripcion: "Paleta helada para perros sabor tocineta.", opciones: [] },
     { id: 63, categoria: "🐾 PALETAS PARA MASCOTAS", nombre: "HÍGADO DE RES", precio: 4500, descripcion: "Paleta helada para perros sabor hígado de res.", opciones: [] },
     // <--- FIN CATEGORÍA PALETAS PARA MASCOTAS --->
+
+    // <--- CATEGORÍA HELADOS PARA LLEVAR (AÑADIDA) --->
+    { id: 64, categoria: "HELADOS PARA LLEVAR", nombre: "LITRO DE HELADO", precio: 32000, descripcion: "Helado cremoso para disfrutar en casa (Sabor Único: Vainilla Francesa).", opciones: [] },
+    { id: 65, categoria: "HELADOS PARA LLEVAR", nombre: "MEDIO LITRO DE HELADO", precio: 18000, descripcion: "Helado cremoso para disfrutar en casa (Sabor Único: Vainilla Francesa).", opciones: [] },
+    // <--- FIN CATEGORÍA HELADOS PARA LLEVAR --->
 ];
 
 // Carrito de compras global
@@ -166,8 +171,8 @@ const menuNavegacion = document.getElementById('menu-navegacion');
 
 // Constantes de altura (deben coincidir con styles.css para el cálculo)
 const HEADER_HEIGHT_DESKTOP = 370; // Altura normal del banner en desktop (ver styles.css)
-const HEADER_HEIGHT_MOBILE = 150;  // Altura normal del banner en móvil (ver styles.css media query)
-const SCROLL_THRESHOLD = 50;       // Umbral para empezar a minimizar el banner (a los 50px de scroll)
+const HEADER_HEIGHT_MOBILE = 150;  // Altura normal del banner en móvil (ver styles.css media query)
+const SCROLL_THRESHOLD = 50;       // Umbral para empezar a minimizar el banner (a los 50px de scroll)
 
 function handleScroll() {
     const scrollPosition = window.scrollY;
@@ -248,6 +253,7 @@ function cargarMenu() {
         "YOGURT GRIEGO COLOUR GREEK",
         "YOGURT GRIEGO YOGLATT",
         "YOGURT HELADO SUAVE",
+        "HELADOS PARA LLEVAR", // <-- Categoría Añadida
         "BEBIDAS",
         "🐾 PALETAS PARA MASCOTAS",
     ];
@@ -318,8 +324,8 @@ function toggleOpciones(productoId) {
         opcionesDiv.style.display = 'block';
         boton.textContent = 'Cerrar Opciones';
     } else {
-        opcionesDiv.style.display = 'none';
         boton.textContent = productos.find(p => p.id === productoId).nombre === "Yoglatt Base" ? 'Seleccionar Tamaño y Toppings' : 'Seleccionar Opciones';
+        opcionesDiv.style.display = 'none'; 
     }
 }
 
@@ -575,6 +581,23 @@ function cerrarModal(id) {
     document.getElementById(id).style.display = 'none';
 }
 
+/** Muestra una notificación temporal (Toast). */
+function mostrarNotificacion(mensaje) {
+    const notificacionModal = document.getElementById('modal-notification');
+    // Asegura que el contenido se pueda actualizar incluso si no tiene ID, buscando por clase.
+    const contenido = notificacionModal ? notificacionModal.querySelector('.notification-content') : null; 
+
+    if (!notificacionModal || !contenido) return;
+
+    contenido.textContent = mensaje;
+    notificacionModal.classList.add('active');
+    
+    // Ocultar la notificación después de 3 segundos
+    setTimeout(() => {
+        notificacionModal.classList.remove('active');
+    }, 3000);
+}
+
 /** Envía el pedido a WhatsApp y limpia el carrito. */
 function generarMensajeWhatsApp(event) {
     event.preventDefault(); // Detener el envío del formulario por defecto
@@ -602,7 +625,7 @@ function generarMensajeWhatsApp(event) {
         // Opciones
         item.opciones.forEach(op => {
             const precioOp = op.precio > 0 ? ` (+${op.precio.toLocaleString('es-CO')})` : '';
-            mensaje += `    - ${op.nombre} (${op.tipo})${precioOp}%0A`;
+            mensaje += `     - ${op.nombre} (${op.tipo})${precioOp}%0A`;
         });
     });
 
@@ -623,43 +646,16 @@ function generarMensajeWhatsApp(event) {
     cerrarModal('modal-datos');
     
     // Muestra notificación de éxito
-    mostrarNotificacion('¡Pedido enviado a WhatsApp!');
-}
+    mostrarNotificacion(`Pedido enviado a WhatsApp. Revisa tu chat.`);
+} // <-- Función completada
 
-/** Función: Muestra un modal de notificación estético. */
-function mostrarNotificacion(mensaje) {
-    const modal = document.getElementById('modal-notification');
-    const textElement = document.getElementById('modal-notification-text');
-
-    if (modal && textElement) {
-        // 1. Establecer el mensaje
-        textElement.textContent = mensaje;
-        
-        // 2. Mostrar la notificación (usamos display: flex y luego la clase 'active')
-        modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.classList.add('active');
-        }, 10); // Pequeño retraso para asegurar que 'display: flex' se aplique antes de la transición
-
-        // 3. Temporizador para ocultar la notificación
-        setTimeout(() => {
-            modal.classList.remove('active');
-            // Ocultar el elemento después de que la transición haya terminado (0.2s + un pequeño margen)
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 250);
-        }, 2500); // Mantiene el mensaje visible por 2.5 segundos
-    }
-}
-
-// Iniciar la carga del menú cuando el documento esté listo
+// Inicialización del menú al cargar la página y listeners
 document.addEventListener('DOMContentLoaded', () => {
     cargarMenu();
     actualizarCarrito();
-    
-    // Asignar el evento al formulario
-    const form = document.getElementById('datos-formulario');
-    if(form) {
-        form.addEventListener('submit', generarMensajeWhatsApp);
+    // Asignar el evento submit al formulario de datos
+    const formularioDatos = document.getElementById('datos-formulario');
+    if (formularioDatos) {
+        formularioDatos.addEventListener('submit', generarMensajeWhatsApp);
     }
 });
