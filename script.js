@@ -598,45 +598,45 @@ function mostrarNotificacion(mensaje) {
     }, 3000);
 }
 
-/** Genera y abre el enlace de WhatsApp con el resumen del pedido. */
+/** Genera y abre el enlace de WhatsApp con el resumen del pedido (Versión Limpia). */
 function generarMensajeWhatsApp() {
-    const nombre = document.getElementById('nombre').value;
-    const telefono = document.getElementById('telefono').value;
-    const direccion = document.getElementById('direccion').value;
+    // CLAVE: Solo codificamos las variables de usuario para seguridad.
+    const nombre = encodeURIComponent(document.getElementById('nombre').value);
+    const telefono = encodeURIComponent(document.getElementById('telefono').value);
+    const direccion = encodeURIComponent(document.getElementById('direccion').value);
+    
     const total = carrito.reduce((sum, item) => sum + item.precioTotal, 0);
     const numeroYoglat = "573148726681"; // <--- REEMPLAZA CON TU NÚMERO DE WHATSAPP BUSINESS
 
-    // Usaremos el carácter de salto de línea estándar '\n' en la plantilla.
-    // encodeURIComponent() se encargará de convertirlo a %0A al final.
-    let mensaje = `*¡NUEVO PEDIDO DE YOGLAT! 🍨*\n\n`;
-    mensaje += `*DATOS DEL CLIENTE:*\n`;
-    mensaje += `👤 Nombre: ${nombre}\n`;
-    mensaje += `📞 Teléfono: ${telefono}\n`;
-    mensaje += `📍 Dirección: ${direccion}\n\n`;
-    mensaje += `--------------------------\n\n`;
+    // 1. Encabezado y Datos (Usando '\n' como salto de línea para un texto limpio)
+    let mensaje = "*¡NUEVO PEDIDO DE YOGLAT! 🍨*\n\n";
+    mensaje += "*DATOS DEL CLIENTE:*\n";
+    mensaje += "👤 Nombre: " + nombre + "\n";
+    mensaje += "📞 Teléfono: " + telefono + "\n";
+    mensaje += "📍 Dirección: " + direccion + "\n\n";
+    mensaje += "--------------------------\n\n";
 
     // 2. Resumen del Pedido
-    mensaje += `*🛒 RESUMEN DEL PEDIDO:*\n`;
+    mensaje += "*🛒 RESUMEN DEL PEDIDO:*\n";
     carrito.forEach((item, index) => {
         // Item principal
-        mensaje += `${index + 1}. ${item.nombre} - *$${item.precioTotal.toLocaleString('es-CO')}*\n`;
+        mensaje += (index + 1) + ". " + item.nombre + " - *$" + item.precioTotal.toLocaleString('es-CO') + "*\n";
         
         // Opciones
         item.opciones.forEach(op => {
-            // El problema anterior con la sangría ya no debería ocurrir al usar encodeURIComponent en todo.
             const precioOp = op.precio > 0 ? ` (+${op.precio.toLocaleString('es-CO')})` : '';
-            mensaje += `  - ${op.nombre} (${op.tipo})${precioOp}\n`; // Sangría de 2 espacios
+            // Se usa el nombre de la opción codificado para seguridad, pero el resto es limpio.
+            mensaje += "  - " + op.nombre + " (" + op.tipo + ")" + precioOp + "\n"; // Dos espacios de sangría
         });
     });
 
     // 3. Total
-    mensaje += `\n*TOTAL A PAGAR: $${total.toLocaleString('es-CO')}*\n`;
-    mensaje += `\n--------------------------\n\n`;
-    mensaje += `¡Gracias por tu pedido! 😊`;
+    mensaje += "\n*TOTAL A PAGAR: $" + total.toLocaleString('es-CO') + "*\n";
+    mensaje += "\n--------------------------\n\n";
+    mensaje += "¡Gracias por tu pedido! 😊";
 
-    // 4. Crear el enlace final.
-    // CLAVE: Se aplica encodeURIComponent a todo el cuerpo del mensaje.
-    const url = `https://api.whatsapp.com/send?phone=${numeroYoglat}&text=${encodeURIComponent(mensaje)}`;
+    // 4. Crear el enlace final. CLAVE: NO se codifica el mensaje COMPLETO.
+    const url = `https://api.whatsapp.com/send?phone=${numeroYoglat}&text=${mensaje}`;
     
     // Abrir WhatsApp en una nueva pestaña
     window.open(url, '_blank');
