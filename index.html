@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital - Yoglat 🍨</title>
+    <link rel="stylesheet" href="styles.css"> 
+</head>
+<body>
+
+    <header id="main-header">
+        <img src="img/PARNER.png" alt="Logo y Cabecera de Yoglat" class="header-image">
+    </header>
+
+    <div id="menu-navegacion" class="menu-navegacion">
+    </div>
+    
+    <div class="menu-container" id="menu-container">
+        <h2>Nuestros Productos Estrella</h2>
+    </div>
+
+    <div class="carrito-flotante">
+        <span id="contador-carrito">Carrito vacío</span>
+        <span id="total-carrito">Total: $0</span>
+        <button onclick="mostrarCarrito()">Ver Carrito</button>
+    </div>
+
+    <div id="modal-carrito" class="modal">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarModal('modal-carrito')">&times;</span>
+            <h2>🛒 Tu Pedido</h2>
+            <div id="lista-carrito">
+            </div>
+            <p><strong>Total Final: </strong><span id="total-modal"></span></p>
+            <button class="btn-add" onclick="mostrarDatos()" style="width: 100%;">Proceder al Domicilio</button>
+        </div>
+    </div>
+
+    <div id="modal-datos" class="modal">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarModal('modal-datos')">&times;</span>
+            <h2>Datos de Envío 🛵</h2>
+            <form id="datos-formulario">
+                <input type="text" id="nombre" placeholder="Nombre completo" required>
+                <input type="tel" id="telefono" placeholder="Número de Teléfono (Ej. 3001234567)" required>
+                <input type="text" id="direccion" placeholder="Dirección exacta de domicilio" required>
+                <button class="btn-add btn-whatsapp" type="submit" style="width: 100%;">Enviar Pedido por WhatsApp</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modal-notification" class="modal-notification">
+        <div class="notification-content">
+            <p id="modal-notification-text"></p>
+        </div>
+    </div>
+    
+    <script src="script.js"></script> 
+</body>
+</html>
