@@ -599,63 +599,113 @@ function mostrarNotificacion(mensaje) {
 }
 
 /** Envía el pedido a WhatsApp y limpia el carrito. */
+
 function generarMensajeWhatsApp(event) {
+
     event.preventDefault(); // Detener el envío del formulario por defecto
+
     
+
     const nombre = document.getElementById('nombre').value;
+
     const telefono = document.getElementById('telefono').value;
+
     const direccion = document.getElementById('direccion').value;
+
     const total = carrito.reduce((sum, item) => sum + item.precioTotal, 0);
+
     const numeroYoglat = "573148726681"; // **<-- REEMPLAZA CON TU NÚMERO DE WHATSAPP BUSINESS**
 
+
+
     // 1. Encabezado y Datos
+
     let mensaje = `*¡NUEVO PEDIDO DE YOGLAT! 🍨*%0A%0A`;
+
     mensaje += `*DATOS DEL CLIENTE:*%0A`;
+
     mensaje += `👤 Nombre: ${nombre}%0A`;
+
     mensaje += `📞 Teléfono: ${telefono}%0A`;
+
     mensaje += `📍 Dirección: ${direccion}%0A%0A`;
+
     mensaje += `---%0A%0A`;
 
+
+
     // 2. Resumen del Pedido
+
     mensaje += `*🛒 RESUMEN DEL PEDIDO:*%0A`;
+
     carrito.forEach((item, index) => {
+
         // Item principal
+
         mensaje += `${index + 1}. ${item.nombre} - *$${item.precioTotal.toLocaleString('es-CO')}*%0A`;
+
         
+
         // Opciones
+
         item.opciones.forEach(op => {
+
             const precioOp = op.precio > 0 ? ` (+${op.precio.toLocaleString('es-CO')})` : '';
-            mensaje += `     - ${op.nombre} (${op.tipo})${precioOp}%0A`;
+
+            // LÍNEA CORREGIDA: Se usa el carácter de espacio estándar ( ) para mayor compatibilidad móvil.
+
+            mensaje += `  - ${op.nombre}${precioOp}%0A`; 
+
         });
+
     });
 
+
+
     // 3. Total
-    mensaje += `%0A*TOTAL A PAGAR: $${total.toLocaleString('es-CO')}*%0A`;
-    mensaje += `%0A---%0A%0A`;
-    mensaje += `¡Gracias por tu pedido!`;
 
-    // 4. Crear el enlace
-    const url = `https://api.whatsapp.com/send?phone=${numeroYoglat}&text=${mensaje}`;
-    
-    // Abrir WhatsApp en una nueva pestaña
+    mensaje += `---%0A%0A`;
+
+    mensaje += `*💰 TOTAL DEL PEDIDO: $${total.toLocaleString('es-CO')}*%0A%0A`;
+
+    mensaje += `¡Gracias por tu pedido! 😊`;
+
+
+
+    // 4. Enviar a WhatsApp
+
+    const url = `https://wa.me/${numeroYoglat}?text=${encodeURIComponent(mensaje)}`;
+
     window.open(url, '_blank');
-    
-    // Opcional: Limpiar carrito y cerrar modal después de enviar
-    carrito = [];
-    actualizarCarrito();
-    cerrarModal('modal-datos');
-    
-    // Muestra notificación de éxito
-    mostrarNotificacion(`Pedido enviado a WhatsApp. Revisa tu chat.`);
-} // <-- Función completada
 
-// Inicialización del menú al cargar la página y listeners
-document.addEventListener('DOMContentLoaded', () => {
-    cargarMenu();
+
+
+    // 5. Limpiar el carrito y cerrar modal
+
+    carrito = [];
+
     actualizarCarrito();
-    // Asignar el evento submit al formulario de datos
-    const formularioDatos = document.getElementById('datos-formulario');
-    if (formularioDatos) {
-        formularioDatos.addEventListener('submit', generarMensajeWhatsApp);
-    }
+
+    cerrarModal('modal-datos');
+
+}
+
+
+
+// Inicializar el menú y los eventos al cargar la página
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    cargarMenu();
+
+    actualizarCarrito();
+
+    document.getElementById('datos-formulario').addEventListener('submit', generarMensajeWhatsApp);
+
+    
+
+    // Asegurar que el listener de scroll se ejecute al cargar por si la página ya está desplazada
+
+    handleScroll(); 
+
 });
