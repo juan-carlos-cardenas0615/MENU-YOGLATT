@@ -606,40 +606,36 @@ function generarMensajeWhatsApp() {
     const total = carrito.reduce((sum, item) => sum + item.precioTotal, 0);
     const numeroYoglat = "573148726681"; // <--- REEMPLAZA CON TU NÚMERO DE WHATSAPP BUSINESS
 
-    // Usamos el separador de línea seguro "%0A" en una cadena simple.
-    let mensaje = "*¡NUEVO PEDIDO DE YOGLAT! 🍨*" + "%0A" + "%0A";
-    mensaje += "*DATOS DEL CLIENTE:*" + "%0A";
-    mensaje += "👤 Nombre: " + nombre + "%0A";
-    mensaje += "📞 Teléfono: " + telefono + "%0A";
-    
-    // FIX CLAVE: Se asegura que la dirección se envíe correctamente.
-    mensaje += "📍 Dirección: " + direccion + "%0A" + "%0A"; 
-    
-    mensaje += "---" + "%0A" + "%0A";
+    // Usaremos el carácter de salto de línea estándar '\n' en la plantilla.
+    // encodeURIComponent() se encargará de convertirlo a %0A al final.
+    let mensaje = `*¡NUEVO PEDIDO DE YOGLAT! 🍨*\n\n`;
+    mensaje += `*DATOS DEL CLIENTE:*\n`;
+    mensaje += `👤 Nombre: ${nombre}\n`;
+    mensaje += `📞 Teléfono: ${telefono}\n`;
+    mensaje += `📍 Dirección: ${direccion}\n\n`;
+    mensaje += `--------------------------\n\n`;
 
     // 2. Resumen del Pedido
-    mensaje += "*🛒 RESUMEN DEL PEDIDO:*" + "%0A";
+    mensaje += `*🛒 RESUMEN DEL PEDIDO:*\n`;
     carrito.forEach((item, index) => {
         // Item principal
-        mensaje += (index + 1) + ". " + item.nombre + " - *$" + item.precioTotal.toLocaleString('es-CO') + "*" + "%0A";
+        mensaje += `${index + 1}. ${item.nombre} - *$${item.precioTotal.toLocaleString('es-CO')}*\n`;
         
         // Opciones
         item.opciones.forEach(op => {
-            const precioOp = op.precio > 0 ? " (+$" + op.precio.toLocaleString('es-CO') + ")" : '';
-            
-            // FIX CLAVE: Se elimina la sangría de espacio normal para evitar que el encoding falle.
-            // Se usa el guion y un espacio normal.
-            mensaje += "- " + op.nombre + " (" + op.tipo + ")" + precioOp + "%0A";
+            // El problema anterior con la sangría ya no debería ocurrir al usar encodeURIComponent en todo.
+            const precioOp = op.precio > 0 ? ` (+${op.precio.toLocaleString('es-CO')})` : '';
+            mensaje += `  - ${op.nombre} (${op.tipo})${precioOp}\n`; // Sangría de 2 espacios
         });
     });
 
     // 3. Total
-    mensaje += "%0A*TOTAL A PAGAR: $" + total.toLocaleString('es-CO') + "*" + "%0A";
-    mensaje += "%0A---" + "%0A" + "%0A";
-    mensaje += "¡Gracias por tu pedido!";
+    mensaje += `\n*TOTAL A PAGAR: $${total.toLocaleString('es-CO')}*\n`;
+    mensaje += `\n--------------------------\n\n`;
+    mensaje += `¡Gracias por tu pedido! 😊`;
 
-    // 4. Crear el enlace final. Solo se codifica el mensaje.
-    // Usamos el método recomendado (API.WHATSAPP)
+    // 4. Crear el enlace final.
+    // CLAVE: Se aplica encodeURIComponent a todo el cuerpo del mensaje.
     const url = `https://api.whatsapp.com/send?phone=${numeroYoglat}&text=${encodeURIComponent(mensaje)}`;
     
     // Abrir WhatsApp en una nueva pestaña
